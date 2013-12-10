@@ -1,0 +1,37 @@
+1. Test out last complex solution (seems like it wasn't working even with good node)
+2. Create following solution
+3. Set up a mobile site on thenewdabbs.com to display temperature graphs, house status and commands
+
+Node:
+* Take temperature once a minute
+* Append to the end of a 2D array (ReadingValue, ReadingTime)
+* Can also be to:
+//- Wants [A]ck (A, 0) - reply with (A, 1)
+  - Send [T]emp/current (T, n/a)
+  - [S]witch on (S, 1)
+  - [S]witch off (S, 0)
+  - Toggle [S]witch (S, -1)
+  - Switch [S]tatus (S, 2)
+* For temperatures/current, send readings followed by end comment
+  - Readings need to be in format (T/C, ReadingValue, millis() - ReadingTime)
+  - If not send yet, send switch status
+  - Send end transmission (E, n/a)
+* For switching, perform action and return new switch status:
+  - On (S, 1)
+  - Off (S, 0)
+  - Not present (S, -1)
+* For every transmission, either wait for a corresponding ack (A, 1) or try sending again (3 times)
+
+Master:
+* Take temperature once a minute
+* Append to the end of an array (ReadingId As long, NodeId AS int, ReadingType AS char, ReadingValue AS int(?), ReadingOffset long) - max 30(?) in queue
+* Every 30 seconds, poll nodes for temperature
+  - If data received, send ack (A, 1) or try again (3 times)
+  - Append to the end of a 3D array
+* Also poll new nodes (or ones that have missed 10 transmissions) for switch status
+  - Append to the end of a 3D array
+* If data exists in array (needToUpload?) and etherCanSend, upload using get
+  - Wait for ack from website, timeout 5 sec and try to send again
+* Wait for a get command (NodeId, CmdType, CmdValue)
+  - Take control of polls to send cmd to node (5 retries)
+  - Send confirmation, either reading or could not find node (N)
